@@ -1,0 +1,281 @@
+[
+    {
+        "id": "d09a1ff329d18221",
+        "type": "tab",
+        "label": "Fluxo 1",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "329184284a8e97a7",
+        "type": "mqtt in",
+        "z": "d09a1ff329d18221",
+        "name": "MQTT",
+        "topic": "ufg/2025/weather",
+        "qos": "2",
+        "datatype": "auto-detect",
+        "broker": "11f265ef2d209020",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 250,
+        "y": 180,
+        "wires": [
+            [
+                "654b0541e6aeeb1c",
+                "2e77664f744a7d24",
+                "3391563365d1a6e4",
+                "d658087a17f6d55d"
+            ]
+        ]
+    },
+    {
+        "id": "3391563365d1a6e4",
+        "type": "debug",
+        "z": "d09a1ff329d18221",
+        "name": "debug 4",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 465.77183532714844,
+        "y": 113.70805358886719,
+        "wires": []
+    },
+    {
+        "id": "654b0541e6aeeb1c",
+        "type": "function",
+        "z": "d09a1ff329d18221",
+        "name": "Temp",
+        "func": "msg.payload = msg.payload.temperatura_c;\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 470,
+        "y": 180,
+        "wires": [
+            [
+                "c7dab100b5fc1077"
+            ]
+        ]
+    },
+    {
+        "id": "2e77664f744a7d24",
+        "type": "function",
+        "z": "d09a1ff329d18221",
+        "name": "graf comparativo",
+        "func": "// Temperatura\nlet temp = {\n    payload: msg.payload.temperatura_c,\n    topic: \"Temperatura\"\n};\n\nlet sens ={\n    payload: msg.payload.sensacao_termica_c,\n    topic: 'Sensação Térmica'\n}\n\n// Umidade\nlet umi = {\n    payload: msg.payload.umidade_percent,\n    topic: \"Umidade\"\n};\n\n// Envia as duas mensagens separadas\nnode.send(temp);\nnode.send(sens);\nnode.send(umi);\nreturn null;\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 510,
+        "y": 240,
+        "wires": [
+            [
+                "df6b742b669e60c4"
+            ]
+        ]
+    },
+    {
+        "id": "d658087a17f6d55d",
+        "type": "function",
+        "z": "d09a1ff329d18221",
+        "name": "func InfluxDB",
+        "func": "msg.payload = [\n    {\n        measurement: \"UFG-2025\",\n        fields: {\n            temperatura: msg.payload.temperatura_c,\n            sensacao_termica: msg.payload.sensacao_termica_c,\n            umidade: msg.payload.umidade_percent\n\n        },\n        tags: {\n            sendorID: 1,\n            location: \"Goiania GO\"\n        }\n    }\n];\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 490,
+        "y": 300,
+        "wires": [
+            [
+                "e8da8f27ba525009"
+            ]
+        ]
+    },
+    {
+        "id": "c7dab100b5fc1077",
+        "type": "ui_gauge",
+        "z": "d09a1ff329d18221",
+        "name": "",
+        "group": "7c24acd0493d4bfe",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "gtype": "gage",
+        "title": "Temperatura de Goiânia",
+        "label": "units",
+        "format": "{{value}}",
+        "min": 0,
+        "max": "42",
+        "colors": [
+            "#009dd1",
+            "#00bfe6",
+            "#0febd1"
+        ],
+        "seg1": "",
+        "seg2": "",
+        "diff": false,
+        "className": "",
+        "x": 670,
+        "y": 180,
+        "wires": []
+    },
+    {
+        "id": "df6b742b669e60c4",
+        "type": "ui_chart",
+        "z": "d09a1ff329d18221",
+        "name": "",
+        "group": "f6f072499c15dce3",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "label": "Gráfico",
+        "chartType": "horizontalBar",
+        "legend": "false",
+        "xformat": "HH:mm:ss",
+        "interpolate": "step",
+        "nodata": "",
+        "dot": false,
+        "ymin": "0",
+        "ymax": "45",
+        "removeOlder": 1,
+        "removeOlderPoints": "",
+        "removeOlderUnit": "3600",
+        "cutout": 0,
+        "useOneColor": false,
+        "useUTC": false,
+        "colors": [
+            "#1f77b4",
+            "#b569dd",
+            "#ff7f0e",
+            "#2ca02c",
+            "#98df8a",
+            "#d62728",
+            "#ff9896",
+            "#9467bd",
+            "#c5b0d5"
+        ],
+        "outputs": 1,
+        "useDifferentColor": false,
+        "className": "",
+        "x": 700,
+        "y": 240,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "e8da8f27ba525009",
+        "type": "influxdb batch",
+        "z": "d09a1ff329d18221",
+        "influxdb": "2e548db75d938d44",
+        "precision": "",
+        "retentionPolicy": "",
+        "name": "Bucket",
+        "database": "database",
+        "precisionV18FluxV20": "ms",
+        "retentionPolicyV18Flux": "",
+        "org": "UFGInf2025",
+        "bucket": "UFG-Weather",
+        "x": 670,
+        "y": 300,
+        "wires": []
+    },
+    {
+        "id": "11f265ef2d209020",
+        "type": "mqtt-broker",
+        "name": "MQTT",
+        "broker": "broker.mqtt-dashboard.com",
+        "port": "1883",
+        "clientid": "",
+        "autoConnect": true,
+        "usetls": false,
+        "protocolVersion": "4",
+        "keepalive": "60",
+        "cleansession": true,
+        "autoUnsubscribe": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthPayload": "",
+        "birthMsg": {},
+        "closeTopic": "",
+        "closeQos": "0",
+        "closePayload": "",
+        "closeMsg": {},
+        "willTopic": "",
+        "willQos": "0",
+        "willPayload": "",
+        "willMsg": {},
+        "userProps": "",
+        "sessionExpiry": ""
+    },
+    {
+        "id": "7c24acd0493d4bfe",
+        "type": "ui_group",
+        "name": "Temperatura",
+        "tab": "3af7785537024482",
+        "order": 2,
+        "disp": true,
+        "width": "6",
+        "collapse": false,
+        "className": ""
+    },
+    {
+        "id": "f6f072499c15dce3",
+        "type": "ui_group",
+        "name": "Gráficos",
+        "tab": "3af7785537024482",
+        "order": 1,
+        "disp": true,
+        "width": 6,
+        "collapse": false,
+        "className": ""
+    },
+    {
+        "id": "2e548db75d938d44",
+        "type": "influxdb",
+        "hostname": "127.0.0.1",
+        "port": "8086",
+        "protocol": "http",
+        "database": "database",
+        "name": "Token",
+        "usetls": false,
+        "tls": "",
+        "influxdbVersion": "2.0",
+        "url": "http://influxdb:8086",
+        "timeout": "",
+        "rejectUnauthorized": true
+    },
+    {
+        "id": "3af7785537024482",
+        "type": "ui_tab",
+        "name": "UFG-2025",
+        "icon": "dashboard",
+        "disabled": false,
+        "hidden": false
+    },
+    {
+        "id": "02286953d60c1913",
+        "type": "global-config",
+        "env": [],
+        "modules": {
+            "node-red-dashboard": "3.6.2",
+            "node-red-contrib-influxdb": "0.7.0"
+        }
+    }
+]

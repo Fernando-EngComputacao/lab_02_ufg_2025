@@ -1,0 +1,494 @@
+[
+    {
+        "id": "9c6a7eb046045da0",
+        "type": "tab",
+        "label": "Fluxo 2",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "c70b057bdacd5ca0",
+        "type": "mqtt in",
+        "z": "9c6a7eb046045da0",
+        "name": "MQTT",
+        "topic": "ufg/2025/weather",
+        "qos": "2",
+        "datatype": "auto-detect",
+        "broker": "11f265ef2d209020",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 224.22816467285156,
+        "y": 206.2919464111328,
+        "wires": [
+            [
+                "9d25076b448f8783",
+                "86b89bf03a0bdfdc",
+                "0d0ad2d9db9262e1",
+                "57a18d5e5dd24109"
+            ]
+        ]
+    },
+    {
+        "id": "0d0ad2d9db9262e1",
+        "type": "debug",
+        "z": "9c6a7eb046045da0",
+        "name": "debug 1",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 440,
+        "y": 140,
+        "wires": []
+    },
+    {
+        "id": "9d25076b448f8783",
+        "type": "function",
+        "z": "9c6a7eb046045da0",
+        "name": "Temp",
+        "func": "msg.payload = msg.payload.temperatura_c;\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 444.22816467285156,
+        "y": 206.2919464111328,
+        "wires": [
+            [
+                "715f87250189ad77"
+            ]
+        ]
+    },
+    {
+        "id": "86b89bf03a0bdfdc",
+        "type": "function",
+        "z": "9c6a7eb046045da0",
+        "name": "graf comparativo",
+        "func": "// Temperatura\nlet temp = {\n    payload: msg.payload.temperatura_c,\n    topic: \"Temperatura\"\n};\n\nlet sens ={\n    payload: msg.payload.sensacao_termica_c,\n    topic: 'Sensação Térmica'\n}\n\n// Umidade\nlet umi = {\n    payload: msg.payload.umidade_percent,\n    topic: \"Umidade\"\n};\n\n// Envia as duas mensagens separadas\nnode.send(temp);\nnode.send(sens);\nnode.send(umi);\nreturn null;\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 484.22816467285156,
+        "y": 266.2919464111328,
+        "wires": [
+            [
+                "46a083e13118fe84"
+            ]
+        ]
+    },
+    {
+        "id": "57a18d5e5dd24109",
+        "type": "function",
+        "z": "9c6a7eb046045da0",
+        "name": "func InfluxDB",
+        "func": "msg.payload = [\n    {\n        measurement: \"UFG-2025\",\n        fields: {\n            temperatura: msg.payload.temperatura_c,\n            sensacao_termica: msg.payload.sensacao_termica_c,\n            umidade: msg.payload.umidade_percent\n\n        },\n        tags: {\n            sendorID: 1,\n            location: \"Goiania GO\"\n        }\n    }\n];\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 464.22816467285156,
+        "y": 326.2919464111328,
+        "wires": [
+            [
+                "d0f71af3252c38fe"
+            ]
+        ]
+    },
+    {
+        "id": "715f87250189ad77",
+        "type": "ui_gauge",
+        "z": "9c6a7eb046045da0",
+        "name": "",
+        "group": "7c24acd0493d4bfe",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "gtype": "gage",
+        "title": "Temperatura de Goiânia",
+        "label": "units",
+        "format": "{{value}}",
+        "min": 0,
+        "max": "42",
+        "colors": [
+            "#009dd1",
+            "#00bfe6",
+            "#0febd1"
+        ],
+        "seg1": "",
+        "seg2": "",
+        "diff": false,
+        "className": "",
+        "x": 644.2281646728516,
+        "y": 206.2919464111328,
+        "wires": []
+    },
+    {
+        "id": "46a083e13118fe84",
+        "type": "ui_chart",
+        "z": "9c6a7eb046045da0",
+        "name": "",
+        "group": "f6f072499c15dce3",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "label": "Gráfico",
+        "chartType": "horizontalBar",
+        "legend": "false",
+        "xformat": "HH:mm:ss",
+        "interpolate": "step",
+        "nodata": "",
+        "dot": false,
+        "ymin": "0",
+        "ymax": "45",
+        "removeOlder": 1,
+        "removeOlderPoints": "",
+        "removeOlderUnit": "3600",
+        "cutout": 0,
+        "useOneColor": false,
+        "useUTC": false,
+        "colors": [
+            "#1f77b4",
+            "#b569dd",
+            "#ff7f0e",
+            "#2ca02c",
+            "#98df8a",
+            "#d62728",
+            "#ff9896",
+            "#9467bd",
+            "#c5b0d5"
+        ],
+        "outputs": 1,
+        "useDifferentColor": false,
+        "className": "",
+        "x": 674.2281646728516,
+        "y": 266.2919464111328,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "d0f71af3252c38fe",
+        "type": "influxdb batch",
+        "z": "9c6a7eb046045da0",
+        "influxdb": "2e548db75d938d44",
+        "precision": "",
+        "retentionPolicy": "",
+        "name": "Bucket",
+        "database": "database",
+        "precisionV18FluxV20": "ms",
+        "retentionPolicyV18Flux": "",
+        "org": "UFGInf2025",
+        "bucket": "UFG-Weather",
+        "x": 644.2281646728516,
+        "y": 326.2919464111328,
+        "wires": []
+    },
+    {
+        "id": "b3dff447aa1eeabe",
+        "type": "function",
+        "z": "9c6a7eb046045da0",
+        "name": "Dados InfluxDB",
+        "func": "// 1. Inicializa o objeto final já com as chaves e arrays vazios.\nconst resultado = {\n    temperatura: [],\n    umidade: [],\n    sensacao_termica: [],\n    user_message: String\n};\n\n// 2. Pega o array de dados brutos que veio do InfluxDB.\nconst dadosBrutos = msg.payload;\n\n// 3. Itera sobre cada registro (cada ponto de dado) que o InfluxDB retornou.\nfor (const registro of dadosBrutos) {\n    // Pega o nome do campo (ex: \"temperatura\")\n    const campo = registro._field;\n    // Pega o valor (ex: 33.38)\n    const valor = registro._value;\n\n    // 4. Adiciona o valor ao array correspondente dentro do objeto 'resultado'.\n    // Verifica se a chave existe para evitar erros.\n    if (resultado[campo]) {\n        resultado[campo].push(valor);\n    }\n}\nresultado.user_message = flow.get('user_message')\n\nmsg.payload = resultado;\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 540,
+        "y": 440,
+        "wires": [
+            [
+                "6ed8720592de018c"
+            ]
+        ]
+    },
+    {
+        "id": "f8df4b97f1e4c565",
+        "type": "function",
+        "z": "9c6a7eb046045da0",
+        "name": "User Msg",
+        "func": "flow.set('user_message', msg.payload.content)\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 340,
+        "y": 500,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "a8cd01962974d2d4",
+        "type": "debug",
+        "z": "9c6a7eb046045da0",
+        "name": "debug 2",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 520,
+        "y": 400,
+        "wires": []
+    },
+    {
+        "id": "6ed8720592de018c",
+        "type": "function",
+        "z": "9c6a7eb046045da0",
+        "name": "Tratamento Gemini",
+        "func": "const dadosClima = msg.payload;\n\nconst dadosEmStringJSON = JSON.stringify(dadosClima, null, 2);\n\nconst systemRole = `Você é o \"Gyn Clima Guia\" 🤖☀️, seu parça aqui em Goiânia! Sua vibe é ser super amigável, direto ao ponto e sempre ligado no que tá rolando na cidade e no clima. Use emojis para deixar a conversa mais leve e conectada!cidade de Goiânia-Goiás. `;\n\nconst userMessage = msg.payload.user_message;\n\n// 4. A tarefa específica que o Gemini deve executar com os dados.\nconst task = `Sua missão é responder a MENSAGEM DO USUÁRIO usando os DADOS DO CLIMA como seu superpoder secreto. Siga estas regras:\n\n- ** REGRA 1:** Se a mensagem for sobre o ** clima ** (temperatura, umidade, tempo, etc.), analise os DADOS DO CLIMA e faça um resumo gente boa e direto ao ponto.\n\n- ** REGRA 2:** Se a mensagem for pedindo ** dicas de lugares ou rolês **, use os DADOS DO CLIMA para dar a melhor recomendação!\nExemplo: Se estiver quente, sugira parques com sombra, sorveterias ou lugares com ar condicionado 🍦. Se o tempo estiver agradável, um rolê ao ar livre é a pedida 🌳.\n\n- ** REGRA 3:** Para qualquer outro assunto, apenas responda como um amigo local de Goiânia, sem precisar mencionar o clima.`;\n\n// 5. Monte o prompt final, combinando o papel, a tarefa e os dados.\nconst finalPrompt = `\n${systemRole}\n\n---\n**TAREFA:**\n${task}\n\n---\n**Mensagem do Usuário***\n${userMessage}\n\n---\n**DADOS JSON PARA ANÁLISE:**\n\\`\\`\\`json\n${dadosEmStringJSON}\n\\`\\`\\`\n`;\n\n// 6. Monte o payload para a API do Gemini, como antes.\nmsg.payload = {\n    \"contents\": [\n        {\n            \"parts\": [\n                {\n                    \"text\": finalPrompt\n                }\n            ]\n        }\n    ]\n};\n\nmsg.headers = {\n    'Content-Type': 'application/json'\n};\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 550,
+        "y": 500,
+        "wires": [
+            [
+                "8b4111bdffee5d7f"
+            ]
+        ]
+    },
+    {
+        "id": "5c29edc943aa06c3",
+        "type": "debug",
+        "z": "9c6a7eb046045da0",
+        "name": "debug 3",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 600,
+        "y": 620,
+        "wires": []
+    },
+    {
+        "id": "8b4111bdffee5d7f",
+        "type": "http request",
+        "z": "9c6a7eb046045da0",
+        "name": "",
+        "method": "POST",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=AIzaSyBJg_BeoRi2l3MMmfoX7DPxkoVV6S81JQs",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 340,
+        "y": 560,
+        "wires": [
+            [
+                "5c29edc943aa06c3",
+                "f47ce584988f4906"
+            ]
+        ]
+    },
+    {
+        "id": "f47ce584988f4906",
+        "type": "function",
+        "z": "9c6a7eb046045da0",
+        "name": "function 2",
+        "func": "const textoDaResposta = msg.payload.candidates[0].content.parts[0].text;\n\nmsg.payload = msg.payload = {\n    \"type\": \"message\",\n    \"chatId\": 1226680499,\n    \"content\": \"Alex: \"+textoDaResposta,\n}\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 540,
+        "y": 560,
+        "wires": [
+            [
+                "4b54745a72b55aba"
+            ]
+        ]
+    },
+    {
+        "id": "99e1b19e28f591a6",
+        "type": "influxdb in",
+        "z": "9c6a7eb046045da0",
+        "influxdb": "2e548db75d938d44",
+        "name": "Obter dados",
+        "query": "from(bucket: \"UFG-Weather\")\n  |> range(start: -1h) // Busca no histórico da última hora\n  |> filter(fn: (r) => r._measurement == \"UFG-2025\")\n  |> filter(fn: (r) => r.location == \"Goiania GO\")\n  |> filter(fn: (r) => r._field == \"temperatura\" or r._field == \"umidade\" or r._field == \"sensacao_termica\")",
+        "rawOutput": false,
+        "precision": "",
+        "retentionPolicy": "",
+        "org": "UFGInf2025",
+        "x": 370,
+        "y": 440,
+        "wires": [
+            [
+                "b3dff447aa1eeabe",
+                "a8cd01962974d2d4"
+            ]
+        ]
+    },
+    {
+        "id": "a9ed1a85b1c2d1c0",
+        "type": "telegram receiver",
+        "z": "9c6a7eb046045da0",
+        "name": "Receiver",
+        "bot": "50f959be35575149",
+        "saveDataDir": "",
+        "filterCommands": false,
+        "x": 180,
+        "y": 480,
+        "wires": [
+            [
+                "f8df4b97f1e4c565",
+                "99e1b19e28f591a6"
+            ],
+            []
+        ]
+    },
+    {
+        "id": "4b54745a72b55aba",
+        "type": "telegram sender",
+        "z": "9c6a7eb046045da0",
+        "name": "",
+        "bot": "50f959be35575149",
+        "haserroroutput": false,
+        "outputs": 1,
+        "x": 750,
+        "y": 560,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "11f265ef2d209020",
+        "type": "mqtt-broker",
+        "name": "MQTT",
+        "broker": "broker.mqtt-dashboard.com",
+        "port": "1883",
+        "clientid": "",
+        "autoConnect": true,
+        "usetls": false,
+        "protocolVersion": "4",
+        "keepalive": "60",
+        "cleansession": true,
+        "autoUnsubscribe": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthPayload": "",
+        "birthMsg": {},
+        "closeTopic": "",
+        "closeQos": "0",
+        "closePayload": "",
+        "closeMsg": {},
+        "willTopic": "",
+        "willQos": "0",
+        "willPayload": "",
+        "willMsg": {},
+        "userProps": "",
+        "sessionExpiry": ""
+    },
+    {
+        "id": "7c24acd0493d4bfe",
+        "type": "ui_group",
+        "name": "Temperatura",
+        "tab": "3af7785537024482",
+        "order": 2,
+        "disp": true,
+        "width": "6",
+        "collapse": false,
+        "className": ""
+    },
+    {
+        "id": "f6f072499c15dce3",
+        "type": "ui_group",
+        "name": "Gráficos",
+        "tab": "3af7785537024482",
+        "order": 1,
+        "disp": true,
+        "width": 6,
+        "collapse": false,
+        "className": ""
+    },
+    {
+        "id": "2e548db75d938d44",
+        "type": "influxdb",
+        "hostname": "127.0.0.1",
+        "port": "8086",
+        "protocol": "http",
+        "database": "database",
+        "name": "Token",
+        "usetls": false,
+        "tls": "",
+        "influxdbVersion": "2.0",
+        "url": "http://influxdb:8086",
+        "timeout": "",
+        "rejectUnauthorized": true
+    },
+    {
+        "id": "50f959be35575149",
+        "type": "telegram bot",
+        "botname": "UFG_Weather",
+        "usernames": "Nowuser_bot",
+        "chatids": "1226680499",
+        "baseapiurl": "",
+        "updatemode": "polling",
+        "pollinterval": 300,
+        "usesocks": false,
+        "sockshost": "",
+        "socksprotocol": "socks5",
+        "socksport": 6667,
+        "socksusername": "anonymous",
+        "sockspassword": "",
+        "bothost": "",
+        "botpath": "",
+        "localbotport": 8443,
+        "publicbotport": 8443,
+        "privatekey": "",
+        "certificate": "",
+        "useselfsignedcertificate": false,
+        "sslterminated": false,
+        "verboselogging": false
+    },
+    {
+        "id": "3af7785537024482",
+        "type": "ui_tab",
+        "name": "UFG-2025",
+        "icon": "dashboard",
+        "disabled": false,
+        "hidden": false
+    },
+    {
+        "id": "6f4a7f2523398451",
+        "type": "global-config",
+        "env": [],
+        "modules": {
+            "node-red-dashboard": "3.6.2",
+            "node-red-contrib-influxdb": "0.7.0",
+            "node-red-contrib-telegrambot": "15.1.9"
+        }
+    }
+]

@@ -1,0 +1,246 @@
+[
+    {
+        "id": "d09a1ff329d18221",
+        "type": "tab",
+        "label": "Fluxo 1",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "75504007cb8206e1",
+        "type": "function",
+        "z": "d09a1ff329d18221",
+        "name": "Dados InfluxDB",
+        "func": "// 1. Inicializa o objeto final já com as chaves e arrays vazios.\nconst resultado = {\n    temperatura: [],\n    umidade: [],\n    sensacao_termica: [],\n    user_message: String\n};\n\n// 2. Pega o array de dados brutos que veio do InfluxDB.\nconst dadosBrutos = msg.payload;\n\n// 3. Itera sobre cada registro (cada ponto de dado) que o InfluxDB retornou.\nfor (const registro of dadosBrutos) {\n    // Pega o nome do campo (ex: \"temperatura\")\n    const campo = registro._field;\n    // Pega o valor (ex: 33.38)\n    const valor = registro._value;\n\n    // 4. Adiciona o valor ao array correspondente dentro do objeto 'resultado'.\n    // Verifica se a chave existe para evitar erros.\n    if (resultado[campo]) {\n        resultado[campo].push(valor);\n    }\n}\nresultado.user_message = flow.get('user_message')\n\nmsg.payload = resultado;\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 520,
+        "y": 180,
+        "wires": [
+            [
+                "8e36ece9eee4401a"
+            ]
+        ]
+    },
+    {
+        "id": "d129692735b24bfc",
+        "type": "function",
+        "z": "d09a1ff329d18221",
+        "name": "User Msg",
+        "func": "flow.set('user_message', msg.payload.content)\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 320,
+        "y": 240,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "acecd64fa4255e8b",
+        "type": "debug",
+        "z": "d09a1ff329d18221",
+        "name": "debug 4",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 500,
+        "y": 140,
+        "wires": []
+    },
+    {
+        "id": "8e36ece9eee4401a",
+        "type": "function",
+        "z": "d09a1ff329d18221",
+        "name": "Tratamento Gemini",
+        "func": "const dadosClima = msg.payload;\n\nconst dadosEmStringJSON = JSON.stringify(dadosClima, null, 2);\n\nconst systemRole = `Você é o \"Gyn Clima Guia\" 🤖☀️, seu parça aqui em Goiânia! Sua vibe é ser super amigável, direto ao ponto e sempre ligado no que tá rolando na cidade e no clima. Use emojis para deixar a conversa mais leve e conectada!cidade de Goiânia-Goiás. `;\n\nconst userMessage = msg.payload.user_message;\n\n// 4. A tarefa específica que o Gemini deve executar com os dados.\nconst task = `Sua missão é responder a MENSAGEM DO USUÁRIO usando os DADOS DO CLIMA como seu superpoder secreto. Siga estas regras:\n\n- ** REGRA 1:** Se a mensagem for sobre o ** clima ** (temperatura, umidade, tempo, etc.), analise os DADOS DO CLIMA e faça um resumo gente boa e direto ao ponto.\n\n- ** REGRA 2:** Se a mensagem for pedindo ** dicas de lugares ou rolês **, use os DADOS DO CLIMA para dar a melhor recomendação!\nExemplo: Se estiver quente, sugira parques com sombra, sorveterias ou lugares com ar condicionado 🍦. Se o tempo estiver agradável, um rolê ao ar livre é a pedida 🌳.\n\n- ** REGRA 3:** Para qualquer outro assunto, apenas responda como um amigo local de Goiânia, sem precisar mencionar o clima.`;\n\n// 5. Monte o prompt final, combinando o papel, a tarefa e os dados.\nconst finalPrompt = `\n${systemRole}\n\n---\n**TAREFA:**\n${task}\n\n---\n**Mensagem do Usuário***\n${userMessage}\n\n---\n**DADOS JSON PARA ANÁLISE:**\n\\`\\`\\`json\n${dadosEmStringJSON}\n\\`\\`\\`\n`;\n\n// 6. Monte o payload para a API do Gemini, como antes.\nmsg.payload = {\n    \"contents\": [\n        {\n            \"parts\": [\n                {\n                    \"text\": finalPrompt\n                }\n            ]\n        }\n    ]\n};\n\nmsg.headers = {\n    'Content-Type': 'application/json'\n};\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 530,
+        "y": 240,
+        "wires": [
+            [
+                "03243f1ff1301796"
+            ]
+        ]
+    },
+    {
+        "id": "2e92641c5a6362aa",
+        "type": "debug",
+        "z": "d09a1ff329d18221",
+        "name": "debug 5",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 580,
+        "y": 360,
+        "wires": []
+    },
+    {
+        "id": "03243f1ff1301796",
+        "type": "http request",
+        "z": "d09a1ff329d18221",
+        "name": "",
+        "method": "POST",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=AIzaSyBJg_BeoRi2l3MMmfoX7DPxkoVV6S81JQs",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 320,
+        "y": 300,
+        "wires": [
+            [
+                "2e92641c5a6362aa",
+                "358ec9edf89e4956"
+            ]
+        ]
+    },
+    {
+        "id": "358ec9edf89e4956",
+        "type": "function",
+        "z": "d09a1ff329d18221",
+        "name": "function 1",
+        "func": "const textoDaResposta = msg.payload.candidates[0].content.parts[0].text;\n\nmsg.payload = msg.payload = {\n    \"type\": \"message\",\n    \"chatId\": 1226680499,\n    \"content\": \"Alex: \"+textoDaResposta,\n}\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 520,
+        "y": 300,
+        "wires": [
+            [
+                "480335cd7691bbe8"
+            ]
+        ]
+    },
+    {
+        "id": "3cec8d624841b1ed",
+        "type": "influxdb in",
+        "z": "d09a1ff329d18221",
+        "influxdb": "2e548db75d938d44",
+        "name": "Obter dados",
+        "query": "from(bucket: \"UFG-Weather\")\n  |> range(start: -1h) // Busca no histórico da última hora\n  |> filter(fn: (r) => r._measurement == \"UFG-2025\")\n  |> filter(fn: (r) => r.location == \"Goiania GO\")\n  |> filter(fn: (r) => r._field == \"temperatura\" or r._field == \"umidade\" or r._field == \"sensacao_termica\")",
+        "rawOutput": false,
+        "precision": "",
+        "retentionPolicy": "",
+        "org": "UFGInf2025",
+        "x": 350,
+        "y": 180,
+        "wires": [
+            [
+                "75504007cb8206e1",
+                "acecd64fa4255e8b"
+            ]
+        ]
+    },
+    {
+        "id": "16ecb34de4154f69",
+        "type": "telegram receiver",
+        "z": "d09a1ff329d18221",
+        "name": "Receiver",
+        "bot": "50f959be35575149",
+        "saveDataDir": "",
+        "filterCommands": false,
+        "x": 160,
+        "y": 220,
+        "wires": [
+            [
+                "d129692735b24bfc",
+                "3cec8d624841b1ed"
+            ],
+            []
+        ]
+    },
+    {
+        "id": "480335cd7691bbe8",
+        "type": "telegram sender",
+        "z": "d09a1ff329d18221",
+        "name": "",
+        "bot": "50f959be35575149",
+        "haserroroutput": false,
+        "outputs": 1,
+        "x": 730,
+        "y": 300,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "2e548db75d938d44",
+        "type": "influxdb",
+        "hostname": "127.0.0.1",
+        "port": "8086",
+        "protocol": "http",
+        "database": "database",
+        "name": "Token",
+        "usetls": false,
+        "tls": "",
+        "influxdbVersion": "2.0",
+        "url": "http://influxdb:8086",
+        "timeout": "",
+        "rejectUnauthorized": true
+    },
+    {
+        "id": "50f959be35575149",
+        "type": "telegram bot",
+        "botname": "UFG_Weather",
+        "usernames": "Nowuser_bot",
+        "chatids": "1226680499",
+        "baseapiurl": "",
+        "updatemode": "polling",
+        "pollinterval": 300,
+        "usesocks": false,
+        "sockshost": "",
+        "socksprotocol": "socks5",
+        "socksport": 6667,
+        "socksusername": "anonymous",
+        "sockspassword": "",
+        "bothost": "",
+        "botpath": "",
+        "localbotport": 8443,
+        "publicbotport": 8443,
+        "privatekey": "",
+        "certificate": "",
+        "useselfsignedcertificate": false,
+        "sslterminated": false,
+        "verboselogging": false
+    },
+    {
+        "id": "38068806ab688c54",
+        "type": "global-config",
+        "env": [],
+        "modules": {
+            "node-red-contrib-influxdb": "0.7.0",
+            "node-red-contrib-telegrambot": "15.1.9"
+        }
+    }
+]
