@@ -494,6 +494,9 @@ Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para ma
 
 - **Fernando** - *Desenvolvimento Inicial* - [Fernando-EngComputacao](https://github.com/Fernando-EngComputacao)
 
+- Sobre o **Fernando**: [Lattes](http://lattes.cnpq.br/0222161974009571) - [LinkedIn](https://www.linkedin.com/in/furtadof/) - [Instagram](https://www.instagram.com/_fernando_furtado_/)
+
+
 ---
 
 **💡 Dica para Estudantes**: Este projeto é uma excelente introdução aos conceitos de IoT, MQTT, bancos de série temporal e integração de APIs. Experimente modificar os fluxos e adicionar novas funcionalidades!
