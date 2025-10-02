@@ -240,6 +240,22 @@ Para verificar o status:
 sudo systemctl status weather-service.service
 ```
 
+Node-RED
+```
+node-red-contrib-aedes
+node-red-contrib-chartjs
+node-red-contrib-chartjs-line-alt
+node-red-contrib-evolution-api
+node-red-contrib-influxdb
+node-red-node-telegrambot
+node-red-contrib-telegrambot
+node-red-contrib-ui-artless-gauge
+node-red-contrib-ui-reef
+node-red-dashboard
+node-red-node-mysql
+sense-rsa
+```
+
 ## �🔧 Configurações Adicionais
 
 - Ajuste os tópicos MQTT conforme necessário.
