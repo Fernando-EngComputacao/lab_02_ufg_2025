@@ -128,6 +128,92 @@ No Node-RED, importe o arquivo `template/02_Lab02_parte_b.json` para carregar o 
 2. Envie mensagens como "Quais lugares recomendar para hoje em Goiânia?".
 3. O bot consultará os dados climáticos históricos no InfluxDB, processará com Gemini AI e retornará recomendações personalizadas.
 
+## 🤖 Integração com Google Gemini API
+
+A integração com o Google Gemini é feita através de um nó HTTP Request no Node-RED, seguido de um nó de função para tratamento da resposta.
+
+### 🌐 Nó HTTP Request
+
+Configure um nó HTTP Request com as seguintes propriedades:
+
+- **Método**: POST
+- **URL**: `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=YOUR_API_KEY`
+  - Substitua `YOUR_API_KEY` pela sua chave da API do Google Gemini
+- **Cabeçalhos**:
+  - Content-Type: `application/json`
+
+### 📝 Nó de Função - Tratamento Gemini
+
+Use o seguinte código no nó de função para preparar o payload para a API do Gemini:
+
+```javascript
+const dadosClima = msg.payload;
+
+const dadosEmStringJSON = JSON.stringify(dadosClima, null, 2);
+
+const systemRole = `Você é o "Gyn Clima Guia" 🤖☀️, seu parça aqui em Goiânia! Sua vibe é ser super amigável, direto ao ponto e sempre ligado no que tá rolando na cidade e no clima. Use emojis para deixar a conversa mais leve e conectada!cidade de Goiânia-Goiás. `;
+
+const userMessage = msg.payload.user_message;
+
+// 4. A tarefa específica que o Gemini deve executar com os dados.
+const task = `Sua missão é responder a MENSAGEM DO USUÁRIO usando os DADOS DO CLIMA como seu superpoder secreto. Siga estas regras:
+
+- ** REGRA 1:** Se a mensagem for sobre o ** clima ** (temperatura, umidade, tempo, etc.), analise os DADOS DO CLIMA e faça um resumo gente boa e direto ao ponto.
+
+- ** REGRA 2:** Se a mensagem for pedindo ** dicas de lugares ou rolês **, use os DADOS DO CLIMA para dar a melhor recomendação!
+Exemplo: Se estiver quente, sugira parques com sombra, sorveterias ou lugares com ar condicionado 🍦. Se o tempo estiver agradável, um rolê ao ar livre é a pedida 🌳.
+
+- ** REGRA 3:** Para qualquer outro assunto, apenas responda como um amigo local de Goiânia, sem precisar mencionar o clima.`;
+
+// 5. Monte o prompt final, combinando o papel, a tarefa e os dados.
+const finalPrompt = `
+${systemRole}
+
+---
+**TAREFA:**
+${task}
+
+---
+**Mensagem do Usuário***
+${userMessage}
+
+---
+**DADOS JSON PARA ANÁLISE:**
+\`\`\`json
+${dadosEmStringJSON}
+\`\`\`
+`;
+
+// 6. Monte o payload para a API do Gemini, como antes.
+msg.payload = {
+    "contents": [
+        {
+            "parts": [
+                {
+                    "text": finalPrompt
+                }
+            ]
+        }
+    ]
+};
+
+msg.headers = {
+    'Content-Type': 'application/json'
+};
+
+return msg;
+```
+
+Este código prepara um prompt detalhado para o Gemini, incluindo o papel do assistente, as regras de resposta e os dados climáticos em formato JSON.
+
+Caso não queira usar a API-KEY na url, pode adicionar antes no header:
+```
+msg.headers = {
+    'Content-Type': 'application/json',
+    'x-goog-api-key': 'YOUR_API_KEY'
+};
+```
+
 ## 🔧 Configurações Adicionais
 
 - Personalize as prompts para o Gemini AI no nó de função correspondente.
