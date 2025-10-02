@@ -256,6 +256,29 @@ node-red-node-mysql
 sense-rsa
 ```
 
+Function: Tratamento Influx
+
+```
+msg.payload = [
+    {
+        measurement: "UFG-2025",
+        fields: {
+            temperatura: msg.payload.temperatura_c,
+            sensacao_termica: msg.payload.sensacao_termica_c,
+            umidade: msg.payload.umidade_percent
+
+        },
+        tags: {
+            sendorID: 1,
+            location: "Goiania GO"
+        }
+    }
+];
+
+return msg;
+
+```
+
 ## �🔧 Configurações Adicionais
 
 - Ajuste os tópicos MQTT conforme necessário.
