@@ -1,13 +1,13 @@
-# !pip install paho-mqtt requests -q
-
 import paho.mqtt.client as mqtt
 import requests
 import json
 import time
+from datetime import datetime, timezone  # <-- 1. ALTERAÇÃO: Importar timezone também
+from zoneinfo import ZoneInfo           # <-- 1. ALTERAÇÃO: Importar ZoneInfo
 
 # --- 1. Configurações ---
 # A chave de API está inserida diretamente no código conforme solicitado.
-API_KEY = "807dcc76bb1575edaa655d5bae20a8e7"
+API_KEY = "807dcc76bb1575edaa655d5bae20a8e7" # Lembre-se que esta chave de exemplo é inválida
 
 # Configurações do MQTT Broker e OpenWeatherMap
 BROKER_ADDRESS = "broker.mqtt-dashboard.com"
@@ -15,8 +15,23 @@ BROKER_PORT = 1883
 MQTT_TOPIC = "ufg/2025/weather"
 API_URL_BASE = "https://api.openweathermap.org/data/2.5/weather"
 CIDADE = "Goiânia,br"
+# <-- 2. ALTERAÇÃO: Definir o fuso horário de Brasília
+BR_TIMEZONE = ZoneInfo("America/Sao_Paulo")
+
 
 # --- 2. Funções Auxiliares ---
+
+# <-- 3. ALTERAÇÃO: Atualizar a função para converter fusos horários
+def formatar_timestamp_para_hora_br(timestamp):
+    """Converte um timestamp Unix (UTC) para uma string de hora 'HH:MM:SS' no fuso de Brasília."""
+    if timestamp:
+        # Cria um objeto datetime a partir do timestamp, ciente de que é UTC
+        utc_time = datetime.fromtimestamp(timestamp, tz=timezone.utc)
+        # Converte o tempo UTC para o fuso horário de Brasília
+        br_time = utc_time.astimezone(BR_TIMEZONE)
+        # Retorna a string formatada
+        return br_time.strftime('%H:%M:%S')
+    return None
 
 def get_weather_data(api_key, cidade):
     """Busca os dados do clima na API e retorna um dicionário formatado."""
@@ -31,7 +46,10 @@ def get_weather_data(api_key, cidade):
             "sensacao_termica_c": data["main"].get("feels_like"),
             "umidade_percent": data["main"].get("humidity"),
             "clima_desc": data["weather"][0].get("description"),
-            "timestamp_unix": data.get("dt")
+            # <-- 4. ALTERAÇÃO: Usar a nova função com conversão de fuso
+            "amanhecer": formatar_timestamp_para_hora_br(data["sys"].get("sunrise")),
+            "anoitecer": formatar_timestamp_para_hora_br(data["sys"].get("sunset")),
+            "timestamp_unix": data.get("dt"),
         }
         return payload_formatado
     except requests.exceptions.HTTPError as http_err:
@@ -73,7 +91,7 @@ try:
             else:
                 print(f"⚠️  Falha ao enviar mensagem para o tópico '{MQTT_TOPIC}'")
         else:
-            print("Não foi possível obter os dados do clima. Nova tentativa em 3 segundos.")
+            print("Não foi possível obter os dados do clima. Nova tentativa em 5 segundos.")
 
         time.sleep(5)
 
