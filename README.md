@@ -36,8 +36,10 @@ Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para ma
 ## ✨ Autores
 
 - **Fernando** - *Desenvolvimento Inicial* - [Fernando-EngComputacao](https://github.com/Fernando-EngComputacao)
+  - Email: furtado.fernando@discente.ufg.br
+  - LinkedIn: https://www.linkedin.com/in/furtadof/
 
-- Sobre o **Fernando**: [Lattes](http://lattes.cnpq.br/0222161974009571) - [LinkedIn](https://www.linkedin.com/in/furtadof/) - [Instagram](https://www.instagram.com/_fernando_furtado_/)
+- Sobre o **Fernando**: [Lattes](http://lattes.cnpq.br/0222161974009571) - [Instagram](https://www.instagram.com/_fernando_furtado_/)
 
 
 ---
