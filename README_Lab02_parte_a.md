@@ -66,12 +66,6 @@ sudo service docker start
 sudo usermod -a -G docker ec2-user
 ```
 
-**Sai do servidor**
-
-```bash
-exit
-```
-
 **Docker compose**
 
 ```bash
@@ -85,162 +79,43 @@ docker compose version
 ### 1. Clonar o Repositório
 
 ```bash
-git clone https://github.com/Fernando-EngComputacao/lab_02_ufg_2055.git
-cd lab_02_ufg_2055
+git clone https://github.com/Fernando-EngComputacao/lab_02_ufg_2025.git
+cd lab_02_ufg_2025
 ```
 
-### 2. Configurar Variáveis de Ambiente
-
-Copie o arquivo `.env` e configure as variáveis relacionadas ao MQTT e InfluxDB:
-
-```bash
-cp .env.example .env
-```
-
-Edite o `.env` com suas configurações:
-
-- MQTT_BROKER_HOST
-- MQTT_BROKER_PORT
-- INFLUXDB_URL
-- INFLUXDB_TOKEN
-- INFLUXDB_ORG
-- INFLUXDB_BUCKET
-
-### 3. Iniciar os Serviços
+### 2. Iniciar os Serviços
 
 ```bash
 docker-compose up -d
 ```
 
-### 4. Acessar Node-RED
+### 3. Acessar Node-RED
 
-Abra o navegador em `http://localhost:1880` (ou o IP do seu servidor).
+Abra o navegador em `http://<seu_endereco_ipv4>:1880` (o IP do seu servidor da sua instância EC2).
 
-### 5. Importar o Fluxo
+### 4. Importar o Fluxo
 
 No Node-RED, importe o arquivo `template/01_Lab02_parte_a.json` para carregar o fluxo de captura de dados via MQTT.
 
 ## 📖 Como Usar
 
-1. Configure os sensores IoT para publicar dados no tópico MQTT `ufg/2025/weather`.
+1. Configure os sensores IoT para publicar dados no tópico MQTT `ufg/2025/cmu/weather`.
 2. Os dados serão capturados pelo Node-RED e armazenados no InfluxDB.
 3. Monitore os dados através do painel de debug no Node-RED ou consultas diretas ao InfluxDB.
 
-## 🐍 Configuração do Publicador Python para MQTT
+## 🐍 Publicador Python para MQTT
 
-Para alimentar o MQTT com dados dos sensores, você pode usar um script Python que publica dados climáticos simulados ou reais. Siga os passos abaixo para configurar uma instância Python que roda como serviço no sistema.
+Para instruções detalhadas sobre como configurar um script Python para publicar dados climáticos no MQTT, consulte o documento [Publicador Python para MQTT](README_Python_Publisher.md).
 
-### 🗂️ 1. Criar Pasta do Projeto
+# Node-RED  
 
-```bash
-mkdir pyhton_ufg
-cd pyhton_ufg
-```
+## 📋 Pacotes Node-RED Necessários
 
-### 📝 2. Criar o Arquivo Python
+Para o funcionamento completo do sistema, instale os seguintes pacotes no Node-RED:
 
-Crie o arquivo `weather.py` com o código para publicar dados no MQTT. 
+Na tela do Node-RED, localize o menu sanduíche (canto superior direito). Ao selecionar, vá até a opção 'Gerenciar Paletas'. 
+Na aba 'Instalar' coloque o nome dos pacotes abaixo um por vez e os instalem.
 
-### 🛠️ 3. Instalar Python e Dependências
-
-```bash
-sudo yum update -y
-sudo yum install python3-pip -y
-pip install paho-mqtt requests
-```
-
-### 🔍 Descobrir Caminhos Necessários
-
-Antes de configurar o serviço, é importante identificar os caminhos corretos para o Python e para o arquivo do script:
-
-1. **Caminho do Python 3**:
-
-   ```bash
-   which python3
-   ```
-
-   Este comando retorna o caminho completo do interpretador Python 3 no sistema.
-
-2. **Caminho do Arquivo Python (`weather.py`)**:
-
-   Navegue até a pasta do projeto e execute:
-
-   ```bash
-   pwd
-   ```
-
-   Este comando retorna o caminho completo da pasta onde o arquivo `weather.py` está localizado.
-
-### ⚙️ 4. Configurar o Serviço Systemd
-
-Crie o arquivo de configuração do serviço:
-
-```bash
-sudo nano /etc/systemd/system/weather-service.service
-```
-
-Cole o seguinte conteúdo (ajuste os caminhos conforme necessário):
-
-```ini
-[Unit]
-Description=Script Python para Publicar Dados Climáticos no MQTT
-After=network.target
-
-[Service]
-User=ec2-user
-Group=ec2-user
-WorkingDirectory=/home/ec2-user/pyhton_ufg
-ExecStart=/usr/bin/python3 /home/ec2-user/pyhton_ufg/weather.py
-Restart=always
-RestartSec=10
-
-[Install]
-WantedBy=multi-user.target
-```
-
-**Notas**:
-- Para descobrir o caminho do Python 3: `which python3`
-- Para obter o caminho da pasta do projeto: navegue até ela e execute `pwd`
-
-### 🚀 5. Gerenciar o Serviço
-
-Recarregue o systemd:
-
-```bash
-sudo systemctl daemon-reload
-```
-
-Para iniciar o serviço automaticamente com o servidor:
-
-```bash
-sudo systemctl enable weather-service.service
-```
-
-Para iniciar o serviço agora:
-
-```bash
-sudo systemctl start weather-service.service
-```
-
-Para parar o serviço:
-
-```bash
-sudo systemctl stop weather-service.service
-```
-
-Para reiniciar o serviço:
-
-```bash
-sudo systemctl restart weather-service.service
-```
-
-Para verificar o status:
-
-```bash
-sudo systemctl status weather-service.service
-```
-
-Node-RED
 ```
 node-red-contrib-aedes
 node-red-contrib-chartjs
@@ -256,9 +131,36 @@ node-red-node-mysql
 sense-rsa
 ```
 
-Function: Tratamento Influx
+Observação: instale um pacote por vez e aguarde cada pacote a instalar para evitar conflitos e erros.
 
-```
+
+## 🔍 Acesso ao InfluxDB
+
+O InfluxDB está configurado no Docker Compose e pode ser acessado através do navegador ou ferramentas de linha de comando.
+
+### 🌐 Acesso via Navegador
+
+1. **URL de Acesso**: `http://<SEU_IP_PUBLICO_EC2>:8086`
+   - Substitua `<SEU_IP_PUBLICO_EC2>` pelo endereço IPv4 público da sua instância EC2.
+
+2. **Credenciais de Login**:
+   - **Usuário**: `admin`
+   - **Senha**: `UFGInf2025@`
+   - **Organização**: `UFGInf2025`
+   - **Bucket**: `UFG-Weather`
+   - **Token**: `dafda90fasd8f0adsadacsda9s0djdad8a9sd`
+
+3. **Como Acessar**:
+   - Abra o navegador e navegue até a URL acima.
+   - Faça login com as credenciais fornecidas.
+   - Você poderá visualizar dashboards, consultar dados e gerenciar buckets.
+
+
+## 📝 Função de Tratamento InfluxDB
+
+Use o seguinte código no nó de função para preparar os dados para o InfluxDB:
+
+```javascript
 msg.payload = [
     {
         measurement: "UFG-2025",
@@ -266,7 +168,6 @@ msg.payload = [
             temperatura: msg.payload.temperatura_c,
             sensacao_termica: msg.payload.sensacao_termica_c,
             umidade: msg.payload.umidade_percent
-
         },
         tags: {
             sendorID: 1,
@@ -276,10 +177,12 @@ msg.payload = [
 ];
 
 return msg;
-
 ```
 
-## �🔧 Configurações Adicionais
+---
+
+
+## 🔧 Configurações Adicionais
 
 - Ajuste os tópicos MQTT conforme necessário.
 - Configure retenção de dados no InfluxDB para otimizar armazenamento.
