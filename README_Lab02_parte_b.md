@@ -17,108 +17,11 @@ Esta parte do projeto implementa um assistente inteligente no Telegram que forne
 [Telegram Bot] → [Node-RED] → [InfluxDB] → [Gemini AI] → [Resposta ao Usuário]
 ```
 
-## 📋 Pré-requisitos
+### 1. Acessar Node-RED
 
-### Software Necessário
+Abra o navegador em `http://<seu_endereco_ipv4>:1880` (o IP do seu servidor da sua instância EC2).
 
-- [Docker](https://docs.docker.com/get-docker/) (versão 20.10+)
-- [Docker Compose](https://docs.docker.com/compose/install/) (versão 2.0+)
-- Git
-
-### Contas e APIs Necessárias
-
-- **Telegram Bot Token**: Criar bot via @BotFather
-- **Google Gemini API Key**: Conta no Google Cloud Platform
-
-## Configuração do EC2 AWS
-
-**Proteger chave**
-
-```bash
-chmod 400 minha-chave-docker.pem
-```
-
-**acesso via ssh**
-
-```bash
-ssh -i "minha-chave-docker.pem" ec2-user@SEU_IP_PUBLICO_AQUI
-```
-
-**Atualiza os pacotes do sistema**
-
-```bash
-sudo yum update -y
-```
-
-**Instala o docker**
-
-```bash
-sudo yum install docker -y
-```
-
-**Iniciar o docker**
-
-```bash
-sudo service docker start
-```
-
-**Add User ao grupo do Docker**
-
-```bash
-sudo usermod -a -G docker ec2-user
-```
-
-**Sai do servidor**
-
-```bash
-exit
-```
-
-**Docker compose**
-
-```bash
-sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s | tr '[:upper:]' '[:lower:]')-$(uname -m)" -o /usr/libexec/docker/cli-plugins/docker-compose
-sudo chmod +x /usr/libexec/docker/cli-plugins/docker-compose
-docker compose version
-```
-
-## 🚀 Instalação e Configuração
-
-### 1. Clonar o Repositório
-
-```bash
-git clone https://github.com/Fernando-EngComputacao/lab_02_ufg_2055.git
-cd lab_02_ufg_2055
-```
-
-### 2. Configurar Variáveis de Ambiente
-
-Copie o arquivo `.env` e configure as variáveis relacionadas ao Telegram e Gemini:
-
-```bash
-cp .env.example .env
-```
-
-Edite o `.env` com suas configurações:
-
-- TELEGRAM_BOT_TOKEN
-- GEMINI_API_KEY
-- INFLUXDB_URL
-- INFLUXDB_TOKEN
-- INFLUXDB_ORG
-- INFLUXDB_BUCKET
-
-### 3. Iniciar os Serviços
-
-```bash
-docker-compose up -d
-```
-
-### 4. Acessar Node-RED
-
-Abra o navegador em `http://localhost:1880` (ou o IP do seu servidor).
-
-### 5. Importar o Fluxo
+### 2. Importar o Fluxo
 
 No Node-RED, importe o arquivo `template/02_Lab02_parte_b.json` para carregar o fluxo do assistente Telegram com IA.
 
@@ -131,6 +34,18 @@ No Node-RED, importe o arquivo `template/02_Lab02_parte_b.json` para carregar o 
 ## 🤖 Integração com Google Gemini API
 
 A integração com o Google Gemini é feita através de um nó HTTP Request no Node-RED, seguido de um nó de função para tratamento da resposta.
+
+### 🔑 Como Obter a API Key do Google Gemini
+
+Para usar a API do Google Gemini, você precisa de uma chave de API. Siga os passos abaixo:
+
+1. Acesse o [Google AI Studio](https://aistudio.google.com/app/api-keys).
+2. Faça login com sua conta Google (se necessário).
+3. Clique em "Create API Key" ou "Criar chave de API".
+4. Copie a chave gerada e guarde em local seguro.
+5. Use essa chave na URL do nó HTTP Request, substituindo `YOUR_API_KEY`.
+
+**Nota**: Mantenha sua chave de API segura e não a compartilhe publicamente.
 
 ### 🌐 Nó HTTP Request
 
@@ -217,5 +132,139 @@ msg.headers = {
 ## 🔧 Configurações Adicionais
 
 - Personalize as prompts para o Gemini AI no nó de função correspondente.
-- Ajuste os filtros de consulta ao InfluxDB para períodos específicos.</content>
-<parameter name="filePath">c:\Users\carri\Documents\IoT\Lab_02\README_Lab02_parte_b.md
+- Ajuste os filtros de consulta ao InfluxDB para períodos específicos.
+
+
+## 📱 Configuração do Telegram Bot
+
+Para integrar o assistente com o Telegram, você precisa criar um bot e obter as credenciais necessárias.
+
+### 🤖 Como Criar um Bot no Telegram
+
+1. Abra o Telegram e procure por **@BotFather**.
+2. Inicie uma conversa com o BotFather clicando em "Start".
+3. Envie o comando `/newbot`.
+4. Siga as instruções:
+   - Digite um nome para o seu bot (ex: "Gyn Clima Guia").
+   - Digite um username único para o bot (deve terminar com "bot", ex: "gyn_clima_bot").
+5. O BotFather fornecerá o **token de acesso** do bot. Guarde esse token em local seguro.
+
+### 🔑 Como Obter o Token e ID do Bot
+
+- **Token**: É fornecido diretamente pelo BotFather após criar o bot. Exemplo: `123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11`
+- **ID do Bot**: O ID é a parte antes dos dois pontos no token. No exemplo acima, seria `123456`.
+
+### 💬 Como Obter o ID do Seu Chat no Telegram
+
+Para que o bot possa enviar mensagens para você, precisa do ID do chat:
+
+1. **Parte 01 - Via Bot**:
+   - Inicie uma conversa com seu bot recém-criado.
+   - Envie qualquer mensagem para o bot.
+   - Acesse: `https://api.telegram.org/bot<SEU_TOKEN>/getUpdates`
+     - Substitua `<SEU_TOKEN>` pelo token do seu bot.
+
+2. **Parte 02 - Via Bot de Terceiros**:
+   - Use o bot @UserInfeBot.
+   - Envie `/start` para ele.
+   - Ele responderá com seu ID de usuário, que pode ser usado como ID do chat para mensagens privadas.
+
+3. **Parte 03 - Via @UserInfeBot**:
+   - Procure pelo bot @UserInfeBot no Telegram.
+   - Inicie uma conversa enviando qualquer mensagem.
+   - O bot responderá automaticamente com seu ID de usuário.
+   - Use esse ID como ID do chat para mensagens privadas.
+
+
+## 📤 Nó Telegram Sender
+
+Após processar a resposta do Gemini, use um nó Telegram Sender para enviar a mensagem formatada para o chat.
+
+### 📝 Formatação do Corpo da Mensagem
+
+Use o seguinte código no nó de função antes do nó Telegram Sender para formatar o payload:
+
+```javascript
+const textoDaResposta = msg.payload.candidates[0].content.parts[0].text;
+
+msg.payload = {
+    "type": "message",
+    "chatId": seu_chat_id,
+    "content": "Alex: " + textoDaResposta
+};
+
+return msg;
+```
+
+**Explicação**:
+- `textoDaResposta`: Extrai o texto da resposta do Gemini.
+- `type`: Define o tipo como "message".
+- `chatId`: Substitua `seu_chat_id` pelo ID do seu chat Telegram (obtido conforme explicado anteriormente).
+- `content`: Formata a mensagem com o prefixo "Alex: " seguido da resposta do Gemini.
+
+Configure o nó Telegram Sender com o token do bot e conecte-o após este nó de função.
+
+**Nota**: Use o ID do chat nas configurações do Node-RED para enviar mensagens para o seu Telegram.
+
+## 📊 Query do InfluxDB
+
+Para consultar os dados climáticos armazenados no InfluxDB, use a seguinte query Flux no nó InfluxDB:
+
+```flux
+from(bucket: "UFG-Weather")
+  |> range(start: -1h) // Busca no histórico da última hora
+  |> filter(fn: (r) => r._measurement == "UFG-2025")
+  |> filter(fn: (r) => r.location == "Goiania GO")
+  |> filter(fn: (r) => r._field == "temperatura" or r._field == "umidade" or r._field == "sensacao_termica")
+```
+
+**Explicação da Query**:
+- `from(bucket: "UFG-Weather")`: Seleciona o bucket onde os dados estão armazenados.
+- `range(start: -1h)`: Filtra dados da última hora (pode ajustar para outros períodos, ex: `-24h` para último dia).
+- `filter(fn: (r) => r._measurement == "UFG-2025")`: Filtra pela medição específica.
+- `filter(fn: (r) => r.location == "Goiania GO")`: Filtra pela localização.
+- `filter(fn: (r) => r._field == "temperatura" or r._field == "umidade" or r._field == "sensacao_termica")`: Seleciona apenas os campos de interesse.
+
+## 🔄 Formatação dos Dados para Gemini
+
+Após consultar o InfluxDB, use o seguinte código no nó de função para formatar os dados brutos em um objeto estruturado para enviar ao Gemini:
+
+- Nó (Dados InfluxDB)
+
+```javascript
+// 1. Inicializa o objeto final já com as chaves e arrays vazios.
+const resultado = {
+    temperatura: [],
+    umidade: [],
+    sensacao_termica: [],
+    user_message: String
+};
+
+// 2. Pega o array de dados brutos que veio do InfluxDB.
+const dadosBrutos = msg.payload;
+
+// 3. Itera sobre cada registro (cada ponto de dado) que o InfluxDB retornou.
+for (const registro of dadosBrutos) {
+    // Pega o nome do campo (ex: "temperatura")
+    const campo = registro._field;
+    // Pega o valor (ex: 33.38)
+    const valor = registro._value;
+
+    // 4. Adiciona o valor ao array correspondente dentro do objeto 'resultado'.
+    // Verifica se a chave existe para evitar erros.
+    if (resultado[campo]) {
+        resultado[campo].push(valor);
+    }
+}
+resultado.user_message = flow.get('user_message');
+
+msg.payload = resultado;
+return msg;
+```
+
+**Explicação do Código**:
+- Inicializa um objeto `resultado` com arrays vazios para cada campo climático e uma string para a mensagem do usuário.
+- Itera sobre os dados brutos do InfluxDB, extraindo o campo (`_field`) e valor (`_value`) de cada registro.
+- Adiciona os valores aos arrays correspondentes no objeto `resultado`.
+- Recupera a mensagem do usuário armazenada no contexto do flow.
+- Define `msg.payload` como o objeto formatado para ser enviado ao Gemini.
