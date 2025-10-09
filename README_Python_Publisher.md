@@ -162,48 +162,4 @@ Para verificar o status:
 sudo systemctl status weather-service.service
 ```
 
-## 🔍 Acesso ao InfluxDB
-
-O InfluxDB está configurado no Docker Compose e pode ser acessado através do navegador ou ferramentas de linha de comando.
-
-### 🌐 Acesso via Navegador
-
-1. **URL de Acesso**: `http://<SEU_IP_PUBLICO_EC2>:8086`
-   - Substitua `<SEU_IP_PUBLICO_EC2>` pelo endereço IPv4 público da sua instância EC2.
-
-2. **Credenciais de Login**:
-   - **Usuário**: `admin`
-   - **Senha**: `UFGInf2025@`
-   - **Organização**: `UFGInf2025`
-   - **Bucket**: `UFG-Weather`
-   - **Token**: `dafda90fasd8f0adsadacsda9s0djdad8a9sd`
-
-3. **Como Acessar**:
-   - Abra o navegador e navegue até a URL acima.
-   - Faça login com as credenciais fornecidas.
-   - Você poderá visualizar dashboards, consultar dados e gerenciar buckets.
-
-## 📝 Função de Tratamento InfluxDB
-
-Use o seguinte código no nó de função para preparar os dados para o InfluxDB:
-
-```javascript
-msg.payload = [
-    {
-        measurement: "UFG-2025",
-        fields: {
-            temperatura: msg.payload.temperatura_c,
-            sensacao_termica: msg.payload.sensacao_termica_c,
-            umidade: msg.payload.umidade_percent
-        },
-        tags: {
-            sendorID: 1,
-            location: "Goiania GO"
-        }
-    }
-];
-
-return msg;
-```
-
 Este documento complementa o [README da Parte A](README_Lab02_parte_a.md) com instruções específicas para a publicação de dados via Python.
